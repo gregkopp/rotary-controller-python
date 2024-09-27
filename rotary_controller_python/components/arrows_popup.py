@@ -19,4 +19,5 @@ if os.path.exists(kv_file):
 
 
 class ArrowsPopup(RelativeLayout):
-    pass
+    def dismiss(self):
+        self.parent.remove_widget(self)
