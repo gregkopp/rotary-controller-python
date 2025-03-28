@@ -1,9 +1,11 @@
 #: import SetupScreenManager rcp.components.setup.setup_screen_manager
+#: import SelectableButton rcp.components.setup.setup_popup
 
 <SetupPopup>:
   id: setup_popup
   screen_manager: screen_manager
   screen_selector: screen_selector
+  current_screen: screen_manager.current
   title: "Setup"
   size_hint: 1, 1
   auto_dismiss: False
@@ -14,28 +16,28 @@
       size_hint_x: None
       width: 128
       orientation: "vertical"
-      Button:
+      SelectableButton:
         text: "Scale 0"
         on_release: root.screen_manager.current = "scale_0"
-      Button:
+      SelectableButton:
         text: "Scale 1"
         on_release: root.screen_manager.current = "scale_1"
-      Button:
+      SelectableButton:
         text: "Scale 2"
         on_release: root.screen_manager.current = "scale_2"
-      Button:
+      SelectableButton:
         text: "Scale 3"
         on_release: root.screen_manager.current = "scale_3"
-      Button:
+      SelectableButton:
         text: "Servo"
         on_release: root.screen_manager.current = "servo"
-      Button:
+      SelectableButton:
         text: "Network"
 #        on_release: root.screen_manager.current = "network"
-      Button:
+      SelectableButton:
         text: "Formats"
         on_release: root.screen_manager.current = "formats"
-      Button:
+      SelectableButton:
         text: "Exit"
         on_release: root.dismiss()
 

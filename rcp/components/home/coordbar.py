@@ -28,6 +28,7 @@ class CoordBar(BoxLayout, SavingDispatcher):
     device = ObjectProperty()
     inputIndex = NumericProperty(0)
     axisName = StringProperty("?")
+    enabled = BooleanProperty(True)
     ratioNum = NumericProperty(1)
     ratioDen = NumericProperty(1)
     syncRatioNum = NumericProperty(360)
@@ -60,7 +61,7 @@ class CoordBar(BoxLayout, SavingDispatcher):
         "minimum_height",
         "width", "height",
     ]
-    _force_save = ["offsets"]
+    _force_save = ["offsets", "enabled"]
 
     def __init__(self, **kv):
         from rcp.app import MainApp
@@ -147,6 +148,11 @@ class CoordBar(BoxLayout, SavingDispatcher):
         self.set_sync_ratio()
 
     def update_scaledPosition(self, instance, value):
+        if not self.enabled:
+            self.formattedPosition = "--"
+            self.formattedSpeed = "--"
+            return
+
         if self.spindleMode:
             # When working in spindle mode we report the position in degrees
             self.scaledPosition = float(
