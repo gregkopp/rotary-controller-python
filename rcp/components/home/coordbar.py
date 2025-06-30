@@ -72,6 +72,7 @@ class CoordBar(BoxLayout, SavingDispatcher):
         self.previous_axis_pos: Decimal = Decimal(0)
         self.app.bind(currentOffset=self.update_scaledPosition)
         self.app.formats.bind(factor=self.update_scaledPosition)
+        self.app.formats.bind(speed_conversion_factor=self.update_scaledPosition)
         self.app.formats.bind(factor=self.set_sync_ratio)
         self.app.bind(connected=self.init_connection)
         self.app.bind(update_tick=self.update_tick)
@@ -169,7 +170,11 @@ class CoordBar(BoxLayout, SavingDispatcher):
             ) * self.app.formats.factor
 
             self.formattedPosition = self.app.formats.position_format.format(self.scaledPosition)
-            self.formattedSpeed = self.app.formats.speed_format.format(self.speed)
+            
+            # Apply the conversion factor from the central FormatsDispatcher
+            displayed_speed = self.speed * self.app.formats.speed_conversion_factor
+            
+            self.formattedSpeed = self.app.formats.speed_format.format(displayed_speed)
 
     def on_newPosition(self, instance, value):
         self.set_current_position(value)
@@ -178,12 +183,12 @@ class CoordBar(BoxLayout, SavingDispatcher):
         # 0 is the reference position for the DRO when offset 0 is selected we reset the absolute position of the scale
         if self.app.currentOffset == 0:
             self.position = float(value / self.app.formats.factor / Fraction(self.ratioNum, self.ratioDen))
-            self.offsets[self.app.currentOffset] = 0
         else:
-            raw_position = self.position * Fraction(self.ratioNum, self.ratioDen)
-            raw_offset = value / self.app.formats.factor
-            self.offsets[self.app.currentOffset] = float(raw_offset - raw_position)
-            self.save_settings()
+            self.offsets[self.app.currentOffset] = value - float(
+                self.position
+                * Fraction(self.ratioNum, self.ratioDen)
+                * self.app.formats.factor
+            )
             self.update_scaledPosition()
 
     def update_position(self):
@@ -221,3 +226,11 @@ class CoordBar(BoxLayout, SavingDispatcher):
 
         self.previous_axis_time = current_time
         self.previous_axis_pos = self.position
+
+    def toggle_speed_mode(self):
+        """Toggle between different speed display modes (M/min vs mm/rev or ft/min vs in/rev)"""
+        self.app.beep()  # Provide feedback
+        # Call the toggle method in the formats dispatcher
+        self.app.formats.toggle_speed_mode()
+        # Update the display to reflect the changes
+        self.update_scaledPosition()
